@@ -12,9 +12,9 @@
 
     </organization>
     <artifactId>group-sync-plugin</artifactId>
+    <name>group-sync-crowd-plugin</name>
+    <description>This is the de.org:group-sync-crowd-plugin plugin for Atlassian Crowd.</description>
     <packaging>atlassian-plugin</packaging>
-    <name>Directory Group Sync Plugin</name>
-    <description>Activates group synchronization between multiple directories.</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,7 +23,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <crowd.version>4.0.2</crowd.version>
         <crowd.data.version>4.0.2</crowd.data.version>
-        <amps.version>6.3.5</amps.version>
+        <amps.version>8.0.2</amps.version>
         <plugin.testrunner.version>2.0.1</plugin.testrunner.version>
         <atlassian.spring.scanner.version>2.1.11</atlassian.spring.scanner.version>
         <javax.ws.version>1.1.1</javax.ws.version>
@@ -75,43 +75,36 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-
         <plugins>
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
-                <artifactId>maven-crowd-plugin</artifactId>
+                <artifactId>crowd-maven-plugin</artifactId>
                 <version>${amps.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <productVersion>${crowd.version}</productVersion>
-                    <productDataVersion>${crowd.version}</productDataVersion>
+                    <productDataVersion>${crowd.data.version}</productDataVersion>
                     <enableQuickReload>true</enableQuickReload>
-                    <extractDependencies>true</extractDependencies>
-                    <!--
-                    <log4jProperties>src/main/resources/log4j.properties</log4jProperties>
-                    -->
 
                     <!-- See here for an explanation of default instructions: -->
                     <!-- https://developer.atlassian.com/docs/advanced-topics/configuration-of-instructions-in-atlassian-plugins -->
                     <instructions>
                         <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
-                        <Spring-Context>*</Spring-Context>
+
+                        <!-- Add package to export here -->
                         <Export-Package>
-                            de.org.crowd.group,
-                            de.org.crowd.group.event
+                            de.org.api,
                         </Export-Package>
+
                         <!-- Add package import here -->
                         <Import-Package>
                             org.springframework.osgi.*;resolution:="optional",
                             org.eclipse.gemini.blueprint.*;resolution:="optional",
-                            *;resolution:="optional"
+                            *
                         </Import-Package>
+
+                        <!-- Ensure plugin is spring powered -->
+                        <Spring-Context>*</Spring-Context>
                     </instructions>
                 </configuration>
             </plugin>
@@ -125,8 +118,6 @@
                         <goals>
                             <goal>atlassian-spring-scanner</goal>
                         </goals>
-                        <!-- process-classes seems to be skipped if you are using scala
-                             so perhaps use prepare-package -->
                         <phase>process-classes</phase>
                     </execution>
                 </executions>
@@ -138,20 +129,6 @@
                         </dependency>
                     </scannedDependencies>
                     <verbose>false</verbose>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>3.0.0-M1</version>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.21.0</version>
-                <configuration>
-                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
                 </configuration>
             </plugin>
         </plugins>
